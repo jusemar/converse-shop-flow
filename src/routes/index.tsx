@@ -57,6 +57,16 @@ export const Route = createFileRoute("/")({
 
 type View = "chat" | "store" | "order" | "conversations";
 
+type Product = {
+  id: string;
+  category: string;
+  name: string;
+  description: string;
+  price: number;
+  image: string;
+  badge?: string;
+};
+
 const conversations = [
   { initials: "SM", name: "Sabor Mineiro", type: "Restaurante", text: "Monte seu prato do seu jeito!", time: "11:24", unread: 2, active: true },
   { initials: "PB", name: "Pizzaria do Bairro", type: "Pizzaria", text: "Seu pedido está a caminho!", time: "10:50", unread: 0 },
@@ -66,7 +76,7 @@ const conversations = [
   { initials: "ER", name: "Entrega Rápida", type: "Entregador", text: "Estou a caminho!", time: "Seg", unread: 0 },
 ];
 
-const products = [
+const products: Product[] = [
   { id: "mineiro", category: "Pratos", name: "Prato Mineiro", description: "Arroz, feijão, bife e legumes salteados", price: 29.9, image: pratoMineiro, badge: "Mais pedido" },
   { id: "frango", category: "Pratos", name: "Frango Grelhado", description: "Frango, batatas douradas e salada fresca", price: 27.9, image: frangoGrelhado },
   { id: "limonada", category: "Bebidas", name: "Limonada Rosa", description: "Garrafa 350 ml, bem gelada", price: 7.5, image: limonadaRosa },
@@ -224,7 +234,7 @@ function ChatView({ messages, onSend, onOpenStore }: { messages: string[]; onSen
   );
 }
 
-function StoreView({ category, setCategory, products, cart, setQuantity, onOrder, totalCount }: { category: string; setCategory: (value: string) => void; products: typeof products; cart: Record<string, number>; setQuantity: (id: string, next: number) => void; onOrder: () => void; totalCount: number }) {
+function StoreView({ category, setCategory, products, cart, setQuantity, onOrder, totalCount }: { category: string; setCategory: (value: string) => void; products: Product[]; cart: Record<string, number>; setQuantity: (id: string, next: number) => void; onOrder: () => void; totalCount: number }) {
   const categories = ["Todos", "Pratos", "Bebidas", "Sobremesas"];
   return (
     <div className="panel-in min-h-0 flex-1 overflow-y-auto">
@@ -271,7 +281,7 @@ function StoreView({ category, setCategory, products, cart, setQuantity, onOrder
   );
 }
 
-function OrderPanel({ className, cart, cartItems, subtotal, setQuantity, onBack }: { className?: string; cart: Record<string, number>; cartItems: typeof products; subtotal: number; setQuantity: (id: string, next: number) => void; onBack: () => void }) {
+function OrderPanel({ className, cart, cartItems, subtotal, setQuantity, onBack }: { className?: string; cart: Record<string, number>; cartItems: Product[]; subtotal: number; setQuantity: (id: string, next: number) => void; onBack: () => void }) {
   const delivery = subtotal > 0 ? 5 : 0;
   return (
     <aside className={cn("panel-in min-h-0 flex-col border-l border-border bg-card", className)}>
