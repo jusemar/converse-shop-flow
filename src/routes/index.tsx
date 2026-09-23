@@ -345,13 +345,13 @@ function Index() {
               <div className="flex shrink-0 items-center gap-1">
                 <Button
                   onClick={() => setView(view === "store" ? "chat" : "store")}
-                  aria-label={view === "store" ? "Voltar à conversa" : "Abrir loja"}
+                  aria-label={view === "store" ? "Voltar à conversa" : "Ver cardápio"}
                   variant={view === "store" ? "default" : "secondary"}
                   className="gap-2 px-3 shadow-none"
                 >
                   {view === "store" ? <MessageCircle /> : <Store />}
                   <span className="hidden sm:inline">
-                    {view === "store" ? "Voltar à conversa" : "Abrir loja"}
+                    {view === "store" ? "Voltar à conversa" : "Ver cardápio"}
                   </span>
                 </Button>
                 <Button
@@ -383,7 +383,6 @@ function Index() {
               <ChatView
                 messages={messages}
                 onSend={(text) => setMessages((current) => [...current, text])}
-                onOpenStore={() => setView("store")}
               />
             )}
           </section>
@@ -405,14 +404,12 @@ function Index() {
 function ChatView({
   messages,
   onSend,
-  onOpenStore,
 }: {
   messages: string[];
   onSend: (text: string) => void;
-  onOpenStore: () => void;
 }) {
   return (
-    <div className="flex min-h-0 flex-1 flex-col bg-[radial-gradient(var(--border)_0.6px,transparent_0.6px)] bg-[size:18px_18px]">
+    <div className="chat-wallpaper flex min-h-0 flex-1 flex-col">
       <Conversation>
         <ConversationContent className="mx-auto w-full max-w-3xl gap-3 px-4 py-6 sm:px-8">
           <div className="mx-auto rounded-full bg-card px-3 py-1 text-[11px] font-semibold text-muted-foreground shadow-sm">
@@ -440,9 +437,6 @@ function ChatView({
                 Perfeito! Nosso cardápio está aberto. Você pode escolher os itens sem sair desta
                 conversa.
               </MessageResponse>
-              <Button onClick={onOpenStore} className="mt-1 w-fit gap-2 shadow-none">
-                <Store /> Ver cardápio
-              </Button>
               <span className="self-end text-[10px] text-muted-foreground">11:24</span>
             </MessageContent>
           </Message>
@@ -459,12 +453,12 @@ function ChatView({
         </ConversationContent>
         <ConversationScrollButton />
       </Conversation>
-      <div className="shrink-0 border-t border-border bg-card p-3 sm:p-4">
+      <div className="shrink-0 border-t border-border bg-muted p-3 sm:p-4">
         <PromptInput
           onSubmit={({ text }) => {
             if (text.trim()) onSend(text.trim());
           }}
-          className="mx-auto max-w-3xl rounded-lg bg-background shadow-sm"
+          className="mx-auto max-w-3xl rounded-lg bg-card shadow-sm"
         >
           <PromptInputTextarea placeholder="Digite uma mensagem..." className="min-h-12 px-4" />
           <PromptInputFooter className="px-2 pb-2">
