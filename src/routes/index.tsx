@@ -39,6 +39,7 @@ import {
   PromptInputTools,
 } from "@/components/ai-elements/prompt-input";
 import { Button } from "@/components/ui/button";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import pratoMineiro from "@/assets/prato-mineiro.jpg";
 import frangoGrelhado from "@/assets/frango-grelhado.jpg";
@@ -206,6 +207,7 @@ function Index() {
   }, [view]);
 
   return (
+    <TooltipProvider>
     <main className="h-dvh min-h-[640px] overflow-hidden bg-background text-foreground">
       <div className="mx-auto grid h-full max-w-[1600px] grid-cols-1 border-x border-border bg-card shadow-sm lg:grid-cols-[300px_minmax(430px,1fr)_330px]">
         <aside
@@ -395,6 +397,7 @@ function Index() {
         />
       </div>
     </main>
+    </TooltipProvider>
   );
 }
 
