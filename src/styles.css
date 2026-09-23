@@ -146,14 +146,26 @@
     letter-spacing: 0;
   }
 
-  button, input, textarea { letter-spacing: 0; }
+  button,
+  input,
+  textarea {
+    letter-spacing: 0;
+  }
 }
 
 @keyframes panel-in {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .panel-in { animation: panel-in 220ms ease-out both; }
+  .panel-in {
+    animation: panel-in 220ms ease-out both;
+  }
 }
