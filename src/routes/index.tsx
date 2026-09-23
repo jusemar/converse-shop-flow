@@ -1,24 +1,311 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useMemo, useState } from "react";
+import {
+  ArrowLeft,
+  Check,
+  ChevronDown,
+  CircleUserRound,
+  Clock3,
+  Image as ImageIcon,
+  MapPin,
+  Menu,
+  MessageCircle,
+  Minus,
+  MoreVertical,
+  Paperclip,
+  Phone,
+  Plus,
+  Search,
+  Send,
+  ShoppingBag,
+  ShoppingBasket,
+  Store,
+  Trash2,
+  Video,
+} from "lucide-react";
 
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
+import { Conversation, ConversationContent, ConversationScrollButton } from "@/components/ai-elements/conversation";
+import { Message, MessageContent, MessageResponse } from "@/components/ai-elements/message";
+import {
+  PromptInput,
+  PromptInputButton,
+  PromptInputFooter,
+  PromptInputSubmit,
+  PromptInputTextarea,
+  PromptInputTools,
+} from "@/components/ai-elements/prompt-input";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import pratoMineiro from "@/assets/prato-mineiro.jpg";
+import frangoGrelhado from "@/assets/frango-grelhado.jpg";
+import boloChocolate from "@/assets/bolo-chocolate.jpg";
+import limonadaRosa from "@/assets/limonada-rosa.jpg";
+
 export const Route = createFileRoute("/")({
+  head: () => ({
+    meta: [
+      { title: "Jaa — Atendimento e pedidos" },
+      { name: "description", content: "Converse com clientes e monte pedidos sem sair do atendimento." },
+      { property: "og:title", content: "Jaa — Atendimento e pedidos" },
+      { property: "og:description", content: "Converse com clientes e monte pedidos sem sair do atendimento." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+  }),
   component: Index,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
-function Index() {
+type View = "chat" | "store" | "order" | "conversations";
+
+const conversations = [
+  { initials: "SM", name: "Sabor Mineiro", type: "Restaurante", text: "Monte seu prato do seu jeito!", time: "11:24", unread: 2, active: true },
+  { initials: "PB", name: "Pizzaria do Bairro", type: "Pizzaria", text: "Seu pedido está a caminho!", time: "10:50", unread: 0 },
+  { initials: "PF", name: "Pet Feliz", type: "Pet shop", text: "Ração em promoção hoje!", time: "Ontem", unread: 0 },
+  { initials: "S+", name: "Farmácia Saúde+", type: "Farmácia", text: "Medicamento disponível!", time: "Ontem", unread: 0 },
+  { initials: "ME", name: "Mercado Express", type: "Supermercado", text: "Ofertas da semana", time: "Seg", unread: 0 },
+  { initials: "ER", name: "Entrega Rápida", type: "Entregador", text: "Estou a caminho!", time: "Seg", unread: 0 },
+];
+
+const products = [
+  { id: "mineiro", category: "Pratos", name: "Prato Mineiro", description: "Arroz, feijão, bife e legumes salteados", price: 29.9, image: pratoMineiro, badge: "Mais pedido" },
+  { id: "frango", category: "Pratos", name: "Frango Grelhado", description: "Frango, batatas douradas e salada fresca", price: 27.9, image: frangoGrelhado },
+  { id: "limonada", category: "Bebidas", name: "Limonada Rosa", description: "Garrafa 350 ml, bem gelada", price: 7.5, image: limonadaRosa },
+  { id: "bolo", category: "Sobremesas", name: "Bolo de Brigadeiro", description: "Chocolate intenso e cobertura cremosa", price: 12.9, image: boloChocolate },
+];
+
+function Brand() {
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
+    <div className="flex items-center gap-2.5">
+      <span className="grid size-9 place-items-center rounded-full bg-primary text-primary-foreground shadow-sm">
+        <MessageCircle className="size-5" strokeWidth={2.5} />
+      </span>
+      <span className="font-display text-xl font-bold text-foreground">Jaa</span>
     </div>
+  );
+}
+
+function Index() {
+  const [view, setView] = useState<View>("chat");
+  const [category, setCategory] = useState("Todos");
+  const [cart, setCart] = useState<Record<string, number>>({ mineiro: 1 });
+  const [messages, setMessages] = useState<string[]>([]);
+  const [search, setSearch] = useState("");
+
+  const cartItems = products.filter((product) => (cart[product.id] ?? 0) > 0);
+  const subtotal = cartItems.reduce((sum, product) => sum + product.price * (cart[product.id] ?? 0), 0);
+  const totalCount = Object.values(cart).reduce((sum, quantity) => sum + quantity, 0);
+  const filteredProducts = category === "Todos" ? products : products.filter((product) => product.category === category);
+  const filteredConversations = conversations.filter((item) => item.name.toLowerCase().includes(search.toLowerCase()));
+
+  const setQuantity = (id: string, next: number) => {
+    setCart((current) => ({ ...current, [id]: Math.max(0, next) }));
+  };
+
+  const mobileTitle = useMemo(() => {
+    if (view === "store") return "Cardápio";
+    if (view === "order") return "Seu pedido";
+    return "Sabor Mineiro";
+  }, [view]);
+
+  return (
+    <main className="h-dvh min-h-[640px] overflow-hidden bg-background text-foreground">
+      <div className="mx-auto grid h-full max-w-[1600px] grid-cols-1 border-x border-border bg-card shadow-sm lg:grid-cols-[300px_minmax(430px,1fr)_330px]">
+        <aside className={cn("min-h-0 border-r border-border bg-card", view === "conversations" ? "flex" : "hidden", "lg:flex lg:flex-col")}>
+          <div className="flex h-[72px] shrink-0 items-center justify-between border-b border-border px-5">
+            <Brand />
+            <Button aria-label="Novo atendimento" title="Novo atendimento" size="icon" variant="ghost"><Plus /></Button>
+          </div>
+          <div className="border-b border-border p-4">
+            <label className="flex h-10 items-center gap-2 rounded-md bg-muted px-3 text-muted-foreground focus-within:ring-2 focus-within:ring-ring/30">
+              <Search className="size-4 shrink-0" />
+              <input value={search} onChange={(event) => setSearch(event.target.value)} className="min-w-0 flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground" placeholder="Buscar conversas" />
+            </label>
+            <div className="mt-3 flex gap-2">
+              <Button size="sm" className="rounded-full shadow-none">Todas</Button>
+              <Button size="sm" variant="ghost" className="rounded-full text-muted-foreground">Não lidas <span className="rounded-full bg-primary px-1.5 py-0.5 text-[10px] text-primary-foreground">3</span></Button>
+            </div>
+          </div>
+          <div className="min-h-0 flex-1 overflow-y-auto py-2">
+            {filteredConversations.map((item, index) => (
+              <button key={item.name} onClick={() => setView("chat")} className={cn("relative grid w-full grid-cols-[44px_minmax(0,1fr)_auto] gap-3 px-4 py-3 text-left transition-colors hover:bg-muted", item.active && "bg-secondary") }>
+                {item.active && <span className="absolute inset-y-2 left-0 w-1 rounded-r-full bg-primary" />}
+                <span className={cn("grid size-11 place-items-center rounded-full text-xs font-bold", index % 3 === 0 ? "bg-primary text-primary-foreground" : index % 3 === 1 ? "bg-foreground text-background" : "bg-accent text-accent-foreground")}>{item.initials}</span>
+                <span className="min-w-0">
+                  <span className="block truncate text-sm font-bold">{item.name}</span>
+                  <span className="block truncate text-xs font-medium text-muted-foreground">{item.type}</span>
+                  <span className="mt-1 block truncate text-xs text-muted-foreground">{item.text}</span>
+                </span>
+                <span className="flex flex-col items-end gap-2 text-[11px] text-muted-foreground">{item.time}{item.unread > 0 && <span className="grid size-5 place-items-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">{item.unread}</span>}</span>
+              </button>
+            ))}
+          </div>
+          <div className="grid h-16 shrink-0 grid-cols-3 border-t border-border px-3">
+            <button className="flex flex-col items-center justify-center gap-1 text-[10px] font-bold text-primary"><MessageCircle className="size-5" />Conversas</button>
+            <button className="flex flex-col items-center justify-center gap-1 text-[10px] text-muted-foreground"><ShoppingBag className="size-5" />Pedidos</button>
+            <button className="flex flex-col items-center justify-center gap-1 text-[10px] text-muted-foreground"><CircleUserRound className="size-5" />Perfil</button>
+          </div>
+        </aside>
+
+        <section className={cn("min-h-0 min-w-0 bg-background", view === "conversations" || view === "order" ? "hidden" : "flex flex-col", "lg:flex")}>
+          <header className="grid h-[72px] shrink-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-border bg-card px-4 sm:px-5">
+            <div className="flex min-w-0 items-center gap-3">
+              <Button onClick={() => setView("conversations")} aria-label="Ver conversas" title="Ver conversas" size="icon" variant="ghost" className="shrink-0 lg:hidden"><ArrowLeft /></Button>
+              <span className="grid size-10 shrink-0 place-items-center rounded-full bg-primary font-display text-sm font-bold text-primary-foreground">SM</span>
+              <div className="min-w-0"><h1 className="truncate font-display text-sm font-bold sm:text-base">{mobileTitle}</h1><p className="flex items-center gap-1 text-xs text-muted-foreground"><span className="size-1.5 rounded-full bg-primary" /> Online agora</p></div>
+            </div>
+            <div className="flex shrink-0 items-center gap-1">
+              <Button onClick={() => setView(view === "store" ? "chat" : "store")} variant={view === "store" ? "default" : "secondary"} className="gap-2 px-3 shadow-none">
+                {view === "store" ? <MessageCircle /> : <Store />}<span className="hidden sm:inline">{view === "store" ? "Voltar à conversa" : "Abrir loja"}</span>
+              </Button>
+              <Button aria-label="Chamada" title="Chamada" size="icon" variant="ghost" className="hidden sm:inline-flex"><Phone /></Button>
+              <Button aria-label="Mais opções" title="Mais opções" size="icon" variant="ghost"><MoreVertical /></Button>
+            </div>
+          </header>
+
+          {view === "store" ? (
+            <StoreView category={category} setCategory={setCategory} products={filteredProducts} cart={cart} setQuantity={setQuantity} onOrder={() => setView("order")} totalCount={totalCount} />
+          ) : (
+            <ChatView messages={messages} onSend={(text) => setMessages((current) => [...current, text])} onOpenStore={() => setView("store")} />
+          )}
+        </section>
+
+        <OrderPanel className={cn(view === "order" ? "flex" : "hidden", "lg:flex")} cart={cart} cartItems={cartItems} subtotal={subtotal} setQuantity={setQuantity} onBack={() => setView("chat")} />
+      </div>
+    </main>
+  );
+}
+
+function ChatView({ messages, onSend, onOpenStore }: { messages: string[]; onSend: (text: string) => void; onOpenStore: () => void }) {
+  return (
+    <div className="flex min-h-0 flex-1 flex-col bg-[radial-gradient(var(--border)_0.6px,transparent_0.6px)] bg-[size:18px_18px]">
+      <Conversation>
+        <ConversationContent className="mx-auto w-full max-w-3xl gap-3 px-4 py-6 sm:px-8">
+          <div className="mx-auto rounded-full bg-card px-3 py-1 text-[11px] font-semibold text-muted-foreground shadow-sm">Hoje</div>
+          <Message from="assistant" className="max-w-[86%] sm:max-w-[72%]">
+            <MessageContent className="rounded-md bg-card px-4 py-3 shadow-sm ring-1 ring-border">
+              <MessageResponse>Olá! Que bom ter você por aqui. Posso ajudar com o cardápio ou montar seu pedido.</MessageResponse>
+              <span className="self-end text-[10px] text-muted-foreground">11:22</span>
+            </MessageContent>
+          </Message>
+          <Message from="user" className="max-w-[86%] sm:max-w-[72%]">
+            <MessageContent className="bg-secondary px-4 py-3 text-secondary-foreground shadow-sm">
+              <MessageResponse>Quero ver as opções de almoço de hoje.</MessageResponse>
+              <span className="flex items-center gap-1 self-end text-[10px] text-primary">11:23 <Check className="size-3" /></span>
+            </MessageContent>
+          </Message>
+          <Message from="assistant" className="max-w-[90%] sm:max-w-[76%]">
+            <MessageContent className="rounded-md bg-card px-4 py-3 shadow-sm ring-1 ring-border">
+              <MessageResponse>Perfeito! Nosso cardápio está aberto. Você pode escolher os itens sem sair desta conversa.</MessageResponse>
+              <Button onClick={onOpenStore} className="mt-1 w-fit gap-2 shadow-none"><Store /> Ver cardápio</Button>
+              <span className="self-end text-[10px] text-muted-foreground">11:24</span>
+            </MessageContent>
+          </Message>
+          {messages.map((message, index) => (
+            <Message from="user" key={`${message}-${index}`} className="max-w-[86%] sm:max-w-[72%]">
+              <MessageContent className="bg-secondary px-4 py-3 text-secondary-foreground shadow-sm"><MessageResponse>{message}</MessageResponse><span className="flex items-center gap-1 self-end text-[10px] text-primary">Agora <Check className="size-3" /></span></MessageContent>
+            </Message>
+          ))}
+        </ConversationContent>
+        <ConversationScrollButton />
+      </Conversation>
+      <div className="shrink-0 border-t border-border bg-card p-3 sm:p-4">
+        <PromptInput onSubmit={({ text }) => { if (text.trim()) onSend(text.trim()); }} className="mx-auto max-w-3xl rounded-lg bg-background shadow-sm">
+          <PromptInputTextarea placeholder="Digite uma mensagem..." className="min-h-12 px-4" />
+          <PromptInputFooter className="px-2 pb-2">
+            <PromptInputTools>
+              <PromptInputButton tooltip="Anexar arquivo"><Paperclip /></PromptInputButton>
+              <PromptInputButton tooltip="Enviar imagem"><ImageIcon /></PromptInputButton>
+            </PromptInputTools>
+            <PromptInputSubmit aria-label="Enviar mensagem"><Send /></PromptInputSubmit>
+          </PromptInputFooter>
+        </PromptInput>
+      </div>
+    </div>
+  );
+}
+
+function StoreView({ category, setCategory, products, cart, setQuantity, onOrder, totalCount }: { category: string; setCategory: (value: string) => void; products: typeof products; cart: Record<string, number>; setQuantity: (id: string, next: number) => void; onOrder: () => void; totalCount: number }) {
+  const categories = ["Todos", "Pratos", "Bebidas", "Sobremesas"];
+  return (
+    <div className="panel-in min-h-0 flex-1 overflow-y-auto">
+      <div className="mx-auto max-w-5xl px-4 py-6 sm:px-7">
+        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-end gap-4">
+          <div className="min-w-0"><p className="text-xs font-bold uppercase text-primary">Sabor Mineiro</p><h2 className="mt-1 font-display text-2xl font-bold">O que vai pedir hoje?</h2><p className="mt-1 text-sm text-muted-foreground">Entrega em 25–40 min</p></div>
+          <span className="hidden items-center gap-2 text-xs font-semibold text-muted-foreground sm:flex"><Clock3 className="size-4 text-primary" /> Aberto até 22h</span>
+        </div>
+        <div className="mt-5 flex gap-2 overflow-x-auto pb-1">
+          {categories.map((item) => <Button key={item} onClick={() => setCategory(item)} size="sm" variant={category === item ? "default" : "outline"} className="shrink-0 rounded-full shadow-none">{item}</Button>)}
+        </div>
+        <div className="mt-5 grid gap-4 sm:grid-cols-2">
+          {products.map((product) => {
+            const quantity = cart[product.id] ?? 0;
+            return (
+              <article key={product.id} className="overflow-hidden rounded-lg border border-border bg-card shadow-sm transition-shadow hover:shadow-md">
+                <div className="relative aspect-[16/9] overflow-hidden bg-muted">
+                  <img src={product.image} alt={product.name} width={1024} height={768} loading="lazy" className="size-full object-cover transition-transform duration-300 hover:scale-[1.02]" />
+                  {product.badge && <span className="absolute left-3 top-3 rounded-full bg-foreground px-2.5 py-1 text-[10px] font-bold text-background">{product.badge}</span>}
+                </div>
+                <div className="p-4">
+                  <h3 className="font-display text-base font-bold">{product.name}</h3>
+                  <p className="mt-1 min-h-10 text-xs leading-5 text-muted-foreground">{product.description}</p>
+                  <div className="mt-4 flex items-center justify-between gap-3">
+                    <span className="font-display text-base font-bold text-primary">R$ {product.price.toFixed(2).replace(".", ",")}</span>
+                    {quantity === 0 ? (
+                      <Button onClick={() => setQuantity(product.id, 1)} size="sm" variant="secondary" className="gap-1.5 shadow-none"><Plus /> Adicionar</Button>
+                    ) : (
+                      <div className="flex h-9 items-center rounded-md border border-border bg-background">
+                        <Button onClick={() => setQuantity(product.id, quantity - 1)} size="icon-sm" variant="ghost" aria-label={`Diminuir ${product.name}`}><Minus /></Button>
+                        <span className="w-7 text-center text-sm font-bold">{quantity}</span>
+                        <Button onClick={() => setQuantity(product.id, quantity + 1)} size="icon-sm" variant="ghost" aria-label={`Aumentar ${product.name}`}><Plus /></Button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      </div>
+      {totalCount > 0 && <div className="sticky bottom-0 border-t border-border bg-card/95 p-3 backdrop-blur lg:hidden"><Button onClick={onOrder} className="h-12 w-full justify-between px-4 text-base"><span className="flex items-center gap-2"><ShoppingBasket /> Ver pedido</span><span className="rounded bg-primary-foreground/15 px-2 py-1 text-xs">{totalCount} {totalCount === 1 ? "item" : "itens"}</span></Button></div>}
+    </div>
+  );
+}
+
+function OrderPanel({ className, cart, cartItems, subtotal, setQuantity, onBack }: { className?: string; cart: Record<string, number>; cartItems: typeof products; subtotal: number; setQuantity: (id: string, next: number) => void; onBack: () => void }) {
+  const delivery = subtotal > 0 ? 5 : 0;
+  return (
+    <aside className={cn("panel-in min-h-0 flex-col border-l border-border bg-card", className)}>
+      <div className="grid h-[72px] shrink-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 border-b border-border px-4">
+        <Button onClick={onBack} aria-label="Voltar" title="Voltar" size="icon" variant="ghost" className="lg:hidden"><ArrowLeft /></Button>
+        <div className="flex min-w-0 items-center gap-2"><ShoppingBasket className="size-5 shrink-0 text-primary" /><h2 className="truncate font-display text-base font-bold">Seu pedido</h2></div>
+        <Button aria-label="Recolher pedido" title="Recolher pedido" size="icon" variant="ghost"><ChevronDown /></Button>
+      </div>
+      <div className="min-h-0 flex-1 overflow-y-auto">
+        <div className="border-b border-border p-4">
+          <div className="flex items-center justify-between"><span className="text-sm font-bold">Entrega</span><span className="text-xs text-muted-foreground">25–40 min</span></div>
+          <div className="mt-3 flex gap-3 rounded-md bg-secondary p-3"><MapPin className="mt-0.5 size-4 shrink-0 text-primary" /><div className="min-w-0"><p className="text-xs font-bold">Rua das Flores, 123</p><p className="mt-0.5 truncate text-[11px] text-muted-foreground">Centro · Belo Horizonte</p></div></div>
+        </div>
+        <div className="p-4">
+          <div className="mb-3 flex items-center justify-between"><h3 className="text-sm font-bold">Itens</h3>{cartItems.length > 0 && <button onClick={() => cartItems.forEach((item) => setQuantity(item.id, 0))} className="text-xs font-semibold text-primary">Limpar</button>}</div>
+          {cartItems.length === 0 ? (
+            <div className="py-12 text-center"><ShoppingBag className="mx-auto size-8 text-muted-foreground" /><p className="mt-3 text-sm font-bold">Seu pedido está vazio</p><p className="mt-1 text-xs text-muted-foreground">Abra a loja e escolha seus itens.</p></div>
+          ) : cartItems.map((product) => {
+            const quantity = cart[product.id] ?? 0;
+            return (
+              <div key={product.id} className="grid grid-cols-[56px_minmax(0,1fr)_auto] gap-3 border-b border-border py-3">
+                <img src={product.image} alt="" width={1024} height={768} loading="lazy" className="size-14 rounded-md object-cover" />
+                <div className="min-w-0"><p className="truncate text-xs font-bold">{product.name}</p><p className="mt-1 text-xs font-bold text-primary">R$ {(product.price * quantity).toFixed(2).replace(".", ",")}</p><div className="mt-2 flex w-fit items-center rounded-md border border-border"><Button onClick={() => setQuantity(product.id, quantity - 1)} size="icon-sm" variant="ghost"><Minus /></Button><span className="w-6 text-center text-xs font-bold">{quantity}</span><Button onClick={() => setQuantity(product.id, quantity + 1)} size="icon-sm" variant="ghost"><Plus /></Button></div></div>
+                <Button onClick={() => setQuantity(product.id, 0)} aria-label={`Remover ${product.name}`} size="icon-sm" variant="ghost"><Trash2 /></Button>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+      <div className="shrink-0 border-t border-border p-4">
+        <div className="space-y-2 text-xs text-muted-foreground"><div className="flex justify-between"><span>Subtotal</span><span>R$ {subtotal.toFixed(2).replace(".", ",")}</span></div><div className="flex justify-between"><span>Entrega</span><span>R$ {delivery.toFixed(2).replace(".", ",")}</span></div></div>
+        <div className="my-4 flex items-center justify-between"><span className="font-display font-bold">Total</span><span className="font-display text-xl font-bold text-primary">R$ {(subtotal + delivery).toFixed(2).replace(".", ",")}</span></div>
+        <Button disabled={subtotal === 0} onClick={() => alert("Protótipo visual: pedido pronto para pagamento.")} className="h-12 w-full gap-2 text-sm">Ir para o pagamento <Send /></Button>
+      </div>
+    </aside>
   );
 }
