@@ -208,195 +208,195 @@ function Index() {
 
   return (
     <TooltipProvider>
-    <main className="h-dvh min-h-[640px] overflow-hidden bg-background text-foreground">
-      <div className="mx-auto grid h-full max-w-[1600px] grid-cols-1 border-x border-border bg-card shadow-sm lg:grid-cols-[300px_minmax(430px,1fr)_330px]">
-        <aside
-          className={cn(
-            "min-h-0 border-r border-border bg-card",
-            view === "conversations" ? "flex" : "hidden",
-            "lg:flex lg:flex-col",
-          )}
-        >
-          <div className="flex h-[72px] shrink-0 items-center justify-between border-b border-border px-5">
-            <Brand />
-            <Button
-              aria-label="Novo atendimento"
-              title="Novo atendimento"
-              size="icon"
-              variant="ghost"
-            >
-              <Plus />
-            </Button>
-          </div>
-          <div className="border-b border-border p-4">
-            <label className="flex h-10 items-center gap-2 rounded-md bg-muted px-3 text-muted-foreground focus-within:ring-2 focus-within:ring-ring/30">
-              <Search className="size-4 shrink-0" />
-              <input
-                value={search}
-                onChange={(event) => setSearch(event.target.value)}
-                className="min-w-0 flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
-                placeholder="Buscar conversas"
-              />
-            </label>
-            <div className="mt-3 flex gap-2">
-              <Button size="sm" className="rounded-full shadow-none">
-                Todas
-              </Button>
-              <Button size="sm" variant="ghost" className="rounded-full text-muted-foreground">
-                Não lidas{" "}
-                <span className="rounded-full bg-primary px-1.5 py-0.5 text-[10px] text-primary-foreground">
-                  3
-                </span>
-              </Button>
-            </div>
-          </div>
-          <div className="min-h-0 flex-1 overflow-y-auto py-2">
-            {filteredConversations.map((item, index) => (
-              <button
-                key={item.name}
-                onClick={() => setView("chat")}
-                className={cn(
-                  "relative grid w-full grid-cols-[44px_minmax(0,1fr)_auto] gap-3 px-4 py-3 text-left transition-colors hover:bg-muted",
-                  item.active && "bg-secondary",
-                )}
-              >
-                {item.active && (
-                  <span className="absolute inset-y-2 left-0 w-1 rounded-r-full bg-primary" />
-                )}
-                <span
-                  className={cn(
-                    "grid size-11 place-items-center rounded-full text-xs font-bold",
-                    index % 3 === 0
-                      ? "bg-primary text-primary-foreground"
-                      : index % 3 === 1
-                        ? "bg-foreground text-background"
-                        : "bg-accent text-accent-foreground",
-                  )}
-                >
-                  {item.initials}
-                </span>
-                <span className="min-w-0">
-                  <span className="block truncate text-sm font-bold">{item.name}</span>
-                  <span className="block truncate text-xs font-medium text-muted-foreground">
-                    {item.type}
-                  </span>
-                  <span className="mt-1 block truncate text-xs text-muted-foreground">
-                    {item.text}
-                  </span>
-                </span>
-                <span className="flex flex-col items-end gap-2 text-[11px] text-muted-foreground">
-                  {item.time}
-                  {item.unread > 0 && (
-                    <span className="grid size-5 place-items-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
-                      {item.unread}
-                    </span>
-                  )}
-                </span>
-              </button>
-            ))}
-          </div>
-          <div className="grid h-16 shrink-0 grid-cols-3 border-t border-border px-3">
-            <button className="flex flex-col items-center justify-center gap-1 text-[10px] font-bold text-primary">
-              <MessageCircle className="size-5" />
-              Conversas
-            </button>
-            <button className="flex flex-col items-center justify-center gap-1 text-[10px] text-muted-foreground">
-              <ShoppingBag className="size-5" />
-              Pedidos
-            </button>
-            <button className="flex flex-col items-center justify-center gap-1 text-[10px] text-muted-foreground">
-              <CircleUserRound className="size-5" />
-              Perfil
-            </button>
-          </div>
-        </aside>
-
-        <section
-          className={cn(
-            "min-h-0 min-w-0 bg-background",
-            view === "conversations" || view === "order" ? "hidden" : "flex flex-col",
-            "lg:flex",
-          )}
-        >
-          <header className="grid h-[72px] shrink-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-border bg-card px-4 sm:px-5">
-            <div className="flex min-w-0 items-center gap-3">
+      <main className="h-dvh min-h-[640px] overflow-hidden bg-background text-foreground">
+        <div className="mx-auto grid h-full max-w-[1600px] grid-cols-1 border-x border-border bg-card shadow-sm lg:grid-cols-[300px_minmax(430px,1fr)_330px]">
+          <aside
+            className={cn(
+              "min-h-0 border-r border-border bg-card",
+              view === "conversations" ? "flex" : "hidden",
+              "lg:flex lg:flex-col",
+            )}
+          >
+            <div className="flex h-[72px] shrink-0 items-center justify-between border-b border-border px-5">
+              <Brand />
               <Button
-                onClick={() => setView("conversations")}
-                aria-label="Ver conversas"
-                title="Ver conversas"
+                aria-label="Novo atendimento"
+                title="Novo atendimento"
                 size="icon"
                 variant="ghost"
-                className="shrink-0 lg:hidden"
               >
-                <ArrowLeft />
+                <Plus />
               </Button>
-              <span className="grid size-10 shrink-0 place-items-center rounded-full bg-primary font-display text-sm font-bold text-primary-foreground">
-                SM
-              </span>
-              <div className="min-w-0">
-                <h1 className="truncate font-display text-sm font-bold sm:text-base">
-                  {mobileTitle}
-                </h1>
-                <p className="flex items-center gap-1 text-xs text-muted-foreground">
-                  <span className="size-1.5 rounded-full bg-primary" /> Online agora
-                </p>
+            </div>
+            <div className="border-b border-border p-4">
+              <label className="flex h-10 items-center gap-2 rounded-md bg-muted px-3 text-muted-foreground focus-within:ring-2 focus-within:ring-ring/30">
+                <Search className="size-4 shrink-0" />
+                <input
+                  value={search}
+                  onChange={(event) => setSearch(event.target.value)}
+                  className="min-w-0 flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
+                  placeholder="Buscar conversas"
+                />
+              </label>
+              <div className="mt-3 flex gap-2">
+                <Button size="sm" className="rounded-full shadow-none">
+                  Todas
+                </Button>
+                <Button size="sm" variant="ghost" className="rounded-full text-muted-foreground">
+                  Não lidas{" "}
+                  <span className="rounded-full bg-primary px-1.5 py-0.5 text-[10px] text-primary-foreground">
+                    3
+                  </span>
+                </Button>
               </div>
             </div>
-            <div className="flex shrink-0 items-center gap-1">
-              <Button
-                onClick={() => setView(view === "store" ? "chat" : "store")}
-                variant={view === "store" ? "default" : "secondary"}
-                className="gap-2 px-3 shadow-none"
-              >
-                {view === "store" ? <MessageCircle /> : <Store />}
-                <span className="hidden sm:inline">
-                  {view === "store" ? "Voltar à conversa" : "Abrir loja"}
-                </span>
-              </Button>
-              <Button
-                aria-label="Chamada"
-                title="Chamada"
-                size="icon"
-                variant="ghost"
-                className="hidden sm:inline-flex"
-              >
-                <Phone />
-              </Button>
-              <Button aria-label="Mais opções" title="Mais opções" size="icon" variant="ghost">
-                <MoreVertical />
-              </Button>
+            <div className="min-h-0 flex-1 overflow-y-auto py-2">
+              {filteredConversations.map((item, index) => (
+                <button
+                  key={item.name}
+                  onClick={() => setView("chat")}
+                  className={cn(
+                    "relative grid w-full grid-cols-[44px_minmax(0,1fr)_auto] gap-3 px-4 py-3 text-left transition-colors hover:bg-muted",
+                    item.active && "bg-secondary",
+                  )}
+                >
+                  {item.active && (
+                    <span className="absolute inset-y-2 left-0 w-1 rounded-r-full bg-primary" />
+                  )}
+                  <span
+                    className={cn(
+                      "grid size-11 place-items-center rounded-full text-xs font-bold",
+                      index % 3 === 0
+                        ? "bg-primary text-primary-foreground"
+                        : index % 3 === 1
+                          ? "bg-foreground text-background"
+                          : "bg-accent text-accent-foreground",
+                    )}
+                  >
+                    {item.initials}
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block truncate text-sm font-bold">{item.name}</span>
+                    <span className="block truncate text-xs font-medium text-muted-foreground">
+                      {item.type}
+                    </span>
+                    <span className="mt-1 block truncate text-xs text-muted-foreground">
+                      {item.text}
+                    </span>
+                  </span>
+                  <span className="flex flex-col items-end gap-2 text-[11px] text-muted-foreground">
+                    {item.time}
+                    {item.unread > 0 && (
+                      <span className="grid size-5 place-items-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
+                        {item.unread}
+                      </span>
+                    )}
+                  </span>
+                </button>
+              ))}
             </div>
-          </header>
+            <div className="grid h-16 shrink-0 grid-cols-3 border-t border-border px-3">
+              <button className="flex flex-col items-center justify-center gap-1 text-[10px] font-bold text-primary">
+                <MessageCircle className="size-5" />
+                Conversas
+              </button>
+              <button className="flex flex-col items-center justify-center gap-1 text-[10px] text-muted-foreground">
+                <ShoppingBag className="size-5" />
+                Pedidos
+              </button>
+              <button className="flex flex-col items-center justify-center gap-1 text-[10px] text-muted-foreground">
+                <CircleUserRound className="size-5" />
+                Perfil
+              </button>
+            </div>
+          </aside>
 
-          {view === "store" ? (
-            <StoreView
-              category={category}
-              setCategory={setCategory}
-              products={filteredProducts}
-              cart={cart}
-              setQuantity={setQuantity}
-              onOrder={() => setView("order")}
-              totalCount={totalCount}
-            />
-          ) : (
-            <ChatView
-              messages={messages}
-              onSend={(text) => setMessages((current) => [...current, text])}
-              onOpenStore={() => setView("store")}
-            />
-          )}
-        </section>
+          <section
+            className={cn(
+              "min-h-0 min-w-0 bg-background",
+              view === "conversations" || view === "order" ? "hidden" : "flex flex-col",
+              "lg:flex",
+            )}
+          >
+            <header className="grid h-[72px] shrink-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-border bg-card px-4 sm:px-5">
+              <div className="flex min-w-0 items-center gap-3">
+                <Button
+                  onClick={() => setView("conversations")}
+                  aria-label="Ver conversas"
+                  title="Ver conversas"
+                  size="icon"
+                  variant="ghost"
+                  className="shrink-0 lg:hidden"
+                >
+                  <ArrowLeft />
+                </Button>
+                <span className="grid size-10 shrink-0 place-items-center rounded-full bg-primary font-display text-sm font-bold text-primary-foreground">
+                  SM
+                </span>
+                <div className="min-w-0">
+                  <h1 className="truncate font-display text-sm font-bold sm:text-base">
+                    {mobileTitle}
+                  </h1>
+                  <p className="flex items-center gap-1 text-xs text-muted-foreground">
+                    <span className="size-1.5 rounded-full bg-primary" /> Online agora
+                  </p>
+                </div>
+              </div>
+              <div className="flex shrink-0 items-center gap-1">
+                <Button
+                  onClick={() => setView(view === "store" ? "chat" : "store")}
+                  variant={view === "store" ? "default" : "secondary"}
+                  className="gap-2 px-3 shadow-none"
+                >
+                  {view === "store" ? <MessageCircle /> : <Store />}
+                  <span className="hidden sm:inline">
+                    {view === "store" ? "Voltar à conversa" : "Abrir loja"}
+                  </span>
+                </Button>
+                <Button
+                  aria-label="Chamada"
+                  title="Chamada"
+                  size="icon"
+                  variant="ghost"
+                  className="hidden sm:inline-flex"
+                >
+                  <Phone />
+                </Button>
+                <Button aria-label="Mais opções" title="Mais opções" size="icon" variant="ghost">
+                  <MoreVertical />
+                </Button>
+              </div>
+            </header>
 
-        <OrderPanel
-          className={cn(view === "order" ? "flex" : "hidden", "lg:flex")}
-          cart={cart}
-          cartItems={cartItems}
-          subtotal={subtotal}
-          setQuantity={setQuantity}
-          onBack={() => setView("chat")}
-        />
-      </div>
-    </main>
+            {view === "store" ? (
+              <StoreView
+                category={category}
+                setCategory={setCategory}
+                products={filteredProducts}
+                cart={cart}
+                setQuantity={setQuantity}
+                onOrder={() => setView("order")}
+                totalCount={totalCount}
+              />
+            ) : (
+              <ChatView
+                messages={messages}
+                onSend={(text) => setMessages((current) => [...current, text])}
+                onOpenStore={() => setView("store")}
+              />
+            )}
+          </section>
+
+          <OrderPanel
+            className={cn(view === "order" ? "flex" : "hidden", "lg:flex")}
+            cart={cart}
+            cartItems={cartItems}
+            subtotal={subtotal}
+            setQuantity={setQuantity}
+            onBack={() => setView("chat")}
+          />
+        </div>
+      </main>
     </TooltipProvider>
   );
 }
