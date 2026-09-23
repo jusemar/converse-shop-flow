@@ -345,7 +345,7 @@ function Index() {
               <div className="flex shrink-0 items-center gap-1">
                 <Button
                   onClick={() => setView(view === "store" ? "chat" : "store")}
-                aria-label={view === "store" ? "Voltar à conversa" : "Abrir loja"}
+                  aria-label={view === "store" ? "Voltar à conversa" : "Abrir loja"}
                   variant={view === "store" ? "default" : "secondary"}
                   className="gap-2 px-3 shadow-none"
                 >
