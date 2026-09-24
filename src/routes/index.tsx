@@ -478,9 +478,6 @@ function ChatView({
 }
 
 function StoreView({
-  category,
-  setCategory,
-  products,
   cart,
   setQuantity,
   onOrder,
@@ -494,100 +491,145 @@ function StoreView({
   onOrder: () => void;
   totalCount: number;
 }) {
-  const categories = ["Todos", "Pratos", "Bebidas", "Sobremesas"];
+  const [size, setSize] = useState<"small" | "large">("large");
+  const [protein, setProtein] = useState("Bife bovino");
+  const [sides, setSides] = useState(["Arroz branco", "Feijão", "Salada", "Legumes salteados"]);
+  const sideOptions = [
+    ["Arroz branco", "arroz"],
+    ["Farofa", "farofa"],
+    ["Feijão", "feijao"],
+    ["Salada", "salada"],
+    ["Batata frita", "batata"],
+    ["Vinagrete", "vinagrete"],
+    ["Purê de batata", "pure"],
+    ["Macarrão", "macarrao"],
+    ["Legumes salteados", "legumes"],
+    ["Couve refogada", "couve"],
+  ];
+  const proteinOptions = ["Bife bovino", "Frango grelhado", "Linguiça", "Carne de panela", "Peixe"];
+  const categories = [
+    ["🍛", "Pratos prontos"],
+    ["🥤", "Refrigerantes"],
+    ["🍰", "Sobremesas"],
+    ["🍟", "Porções"],
+    ["•••", "Outros"],
+  ];
+
+  const toggleSide = (name: string) => {
+    setSides((current) => {
+      if (current.includes(name)) return current.filter((item) => item !== name);
+      if (current.length >= 5) return current;
+      return [...current, name];
+    });
+  };
+
   return (
-    <div className="panel-in min-h-0 flex-1 overflow-y-auto">
-      <div className="mx-auto max-w-5xl px-4 py-6 sm:px-7">
-        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-end gap-4">
-          <div className="min-w-0">
-            <p className="text-xs font-bold uppercase text-primary">Sabor Mineiro</p>
-            <h2 className="mt-1 font-display text-2xl font-bold">O que vai pedir hoje?</h2>
-            <p className="mt-1 text-sm text-muted-foreground">Entrega em 25–40 min</p>
-          </div>
-          <span className="hidden items-center gap-2 text-xs font-semibold text-muted-foreground sm:flex">
-            <Clock3 className="size-4 text-primary" /> Aberto até 22h
-          </span>
-        </div>
-        <div className="mt-5 flex gap-2 overflow-x-auto pb-1">
-          {categories.map((item) => (
-            <Button
-              key={item}
-              onClick={() => setCategory(item)}
-              size="sm"
-              variant={category === item ? "default" : "outline"}
-              className="shrink-0 rounded-full shadow-none"
-            >
-              {item}
-            </Button>
-          ))}
-        </div>
-        <div className="mt-5 grid gap-4 sm:grid-cols-2">
-          {products.map((product) => {
-            const quantity = cart[product.id] ?? 0;
-            return (
-              <article
-                key={product.id}
-                className="overflow-hidden rounded-lg border border-border bg-card shadow-sm transition-shadow hover:shadow-md"
+    <div className="panel-in chat-wallpaper min-h-0 flex-1 overflow-y-auto">
+      <div className="mx-auto max-w-4xl space-y-2.5 px-3 py-3 sm:px-5 sm:py-4">
+        <section className="rounded-lg border border-border bg-card p-3 shadow-sm sm:p-4">
+          <h2 className="text-sm font-bold">1. Escolha o tamanho do prato</h2>
+          <div className="mt-3 grid gap-2 sm:grid-cols-2">
+            {[
+              { id: "small" as const, label: "Pequeno", price: "R$ 24,90" },
+              { id: "large" as const, label: "Grande", price: "R$ 29,90" },
+            ].map((option) => (
+              <button
+                key={option.id}
+                onClick={() => setSize(option.id)}
+                className={cn(
+                  "grid min-h-16 grid-cols-[22px_48px_1fr] items-center gap-3 rounded-md border px-3 text-left transition-colors",
+                  size === option.id ? "border-primary bg-secondary/40" : "border-border bg-card",
+                )}
               >
-                <div className="relative aspect-[16/9] overflow-hidden bg-muted">
-                  <img
-                    src={product.image}
-                    alt={product.name}
-                    width={1024}
-                    height={768}
-                    loading="lazy"
-                    className="size-full object-cover transition-transform duration-300 hover:scale-[1.02]"
-                  />
-                  {product.badge && (
-                    <span className="absolute left-3 top-3 rounded-full bg-foreground px-2.5 py-1 text-[10px] font-bold text-background">
-                      {product.badge}
-                    </span>
-                  )}
-                </div>
-                <div className="p-4">
-                  <h3 className="font-display text-base font-bold">{product.name}</h3>
-                  <p className="mt-1 min-h-10 text-xs leading-5 text-muted-foreground">
-                    {product.description}
-                  </p>
-                  <div className="mt-4 flex items-center justify-between gap-3">
-                    <span className="font-display text-base font-bold text-primary">
-                      R$ {product.price.toFixed(2).replace(".", ",")}
-                    </span>
-                    {quantity === 0 ? (
-                      <Button
-                        onClick={() => setQuantity(product.id, 1)}
-                        size="sm"
-                        variant="secondary"
-                        className="gap-1.5 shadow-none"
-                      >
-                        <Plus /> Adicionar
-                      </Button>
-                    ) : (
-                      <div className="flex h-9 items-center rounded-md border border-border bg-background">
-                        <Button
-                          onClick={() => setQuantity(product.id, quantity - 1)}
-                          size="icon-sm"
-                          variant="ghost"
-                          aria-label={`Diminuir ${product.name}`}
-                        >
-                          <Minus />
-                        </Button>
-                        <span className="w-7 text-center text-sm font-bold">{quantity}</span>
-                        <Button
-                          onClick={() => setQuantity(product.id, quantity + 1)}
-                          size="icon-sm"
-                          variant="ghost"
-                          aria-label={`Aumentar ${product.name}`}
-                        >
-                          <Plus />
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </article>
-            );
-          })}
+                <span className={cn("grid size-4 place-items-center rounded-full border", size === option.id ? "border-primary" : "border-input")}>
+                  {size === option.id && <span className="size-2 rounded-full bg-primary" />}
+                </span>
+                <img src={pratoMineiro} alt="" className="size-11 rounded-full object-cover" />
+                <span>
+                  <span className="block text-xs font-bold">{option.label}</span>
+                  <span className="mt-0.5 block text-sm font-bold text-primary">{option.price}</span>
+                </span>
+              </button>
+            ))}
+          </div>
+        </section>
+
+        <section className="rounded-lg border border-border bg-card p-3 shadow-sm sm:p-4">
+          <h2 className="text-sm font-bold">2. Escolha suas guarnições <span className="font-normal text-muted-foreground">(até 5)</span></h2>
+          <p className="mt-1 text-[11px] text-muted-foreground">As guarnições são as mesmas para os dois tamanhos.</p>
+          <div className="mt-3 grid grid-cols-2 gap-x-5 sm:gap-x-10">
+            {sideOptions.map(([name, imageKey]) => {
+              const selected = sides.includes(name);
+              return (
+                <button
+                  key={name}
+                  onClick={() => toggleSide(name)}
+                  className="grid min-h-11 grid-cols-[18px_34px_minmax(0,1fr)] items-center gap-2 border-b border-border/50 text-left last:border-0"
+                >
+                  <span className={cn("grid size-4 place-items-center rounded-[3px] border", selected ? "border-primary bg-primary text-primary-foreground" : "border-input bg-card")}>
+                    {selected && <Check className="size-3" strokeWidth={3} />}
+                  </span>
+                  <span className="grid size-8 place-items-center rounded-full bg-muted text-base" aria-hidden="true">
+                    {imageKey === "arroz" ? "🍚" : imageKey === "farofa" ? "🥣" : imageKey === "feijao" ? "🫘" : imageKey === "salada" ? "🥗" : imageKey === "batata" ? "🍟" : imageKey === "vinagrete" ? "🍅" : imageKey === "pure" ? "🥔" : imageKey === "macarrao" ? "🍝" : imageKey === "legumes" ? "🥘" : "🥬"}
+                  </span>
+                  <span className="truncate text-[11px] sm:text-xs">{name}</span>
+                </button>
+              );
+            })}
+          </div>
+        </section>
+
+        <section className="rounded-lg border border-border bg-card p-3 shadow-sm sm:p-4">
+          <h2 className="text-sm font-bold">3. Escolha o tipo de carne <span className="font-normal text-muted-foreground">(apenas 1)</span></h2>
+          <div className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-5">
+            {proteinOptions.map((name, index) => (
+              <button
+                key={name}
+                onClick={() => setProtein(name)}
+                className={cn(
+                  "relative flex min-h-24 flex-col items-center justify-center rounded-md border p-2 text-center transition-colors",
+                  protein === name ? "border-primary bg-secondary/40" : "border-border bg-card",
+                )}
+              >
+                <span className={cn("absolute left-2 top-2 grid size-3.5 place-items-center rounded-full border", protein === name ? "border-primary" : "border-input")}>
+                  {protein === name && <span className="size-2 rounded-full bg-primary" />}
+                </span>
+                <span className="text-3xl" aria-hidden="true">{index === 0 ? "🥩" : index === 1 ? "🍗" : index === 2 ? "🌭" : index === 3 ? "🍖" : "🐟"}</span>
+                <span className="mt-1 text-[10px] font-medium leading-tight">{name}</span>
+              </button>
+            ))}
+          </div>
+        </section>
+
+        <section className="grid gap-3 rounded-lg border border-border bg-card p-3 shadow-sm sm:grid-cols-[88px_minmax(0,1fr)_auto] sm:items-center">
+          <img src={pratoMineiro} alt="Prato escolhido" className="h-20 w-full rounded-md object-cover sm:size-20" />
+          <div className="min-w-0">
+            <p className="text-xs font-bold">Seu prato ({size === "large" ? "Grande" : "Pequeno"})</p>
+            <p className="mt-0.5 text-[11px] text-muted-foreground">{protein}</p>
+            <p className="line-clamp-2 text-[10px] leading-4 text-muted-foreground">{sides.join(", ")}</p>
+            <p className="mt-1 text-xs font-bold text-primary">{size === "large" ? "R$ 29,90" : "R$ 24,90"}</p>
+          </div>
+          <div className="flex items-center justify-between gap-2 sm:justify-end">
+            <div className="flex h-10 items-center rounded-md border border-border bg-card">
+              <Button onClick={() => setQuantity("mineiro", (cart.mineiro ?? 0) - 1)} size="icon-sm" variant="ghost" aria-label="Diminuir quantidade"><Minus /></Button>
+              <span className="w-7 text-center text-sm font-bold">{cart.mineiro ?? 0}</span>
+              <Button onClick={() => setQuantity("mineiro", (cart.mineiro ?? 0) + 1)} size="icon-sm" variant="ghost" aria-label="Aumentar quantidade"><Plus /></Button>
+            </div>
+            <Button onClick={() => setQuantity("mineiro", Math.max(1, cart.mineiro ?? 0))} className="h-10 gap-2 px-4 shadow-none">
+              <ShoppingBasket className="size-4" /> Adicionar ao pedido
+            </Button>
+          </div>
+        </section>
+
+        <div>
+          <p className="mb-2 px-1 text-[11px] font-medium">Deseja adicionar mais itens? Escolha uma categoria abaixo:</p>
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
+            {categories.map(([icon, label]) => (
+              <Button key={label} variant="outline" size="sm" className="justify-start gap-2 bg-card text-[10px] shadow-sm sm:justify-center">
+                <span aria-hidden="true">{icon}</span> {label}
+              </Button>
+            ))}
+          </div>
         </div>
       </div>
       {totalCount > 0 && (
