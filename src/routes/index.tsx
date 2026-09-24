@@ -494,7 +494,7 @@ function StoreView({
   const [size, setSize] = useState<"small" | "large">("large");
   const [protein, setProtein] = useState("Bife bovino");
   const [sides, setSides] = useState(["Arroz branco", "Feijão", "Salada", "Legumes salteados"]);
-  const sideOptions = [
+  const sideOptions: Array<[string, string]> = [
     ["Arroz branco", "arroz"],
     ["Farofa", "farofa"],
     ["Feijão", "feijao"],
@@ -611,11 +611,11 @@ function StoreView({
           </div>
           <div className="flex items-center justify-between gap-2 sm:justify-end">
             <div className="flex h-10 items-center rounded-md border border-border bg-card">
-              <Button onClick={() => setQuantity("mineiro", (cart.mineiro ?? 0) - 1)} size="icon-sm" variant="ghost" aria-label="Diminuir quantidade"><Minus /></Button>
-              <span className="w-7 text-center text-sm font-bold">{cart.mineiro ?? 0}</span>
-              <Button onClick={() => setQuantity("mineiro", (cart.mineiro ?? 0) + 1)} size="icon-sm" variant="ghost" aria-label="Aumentar quantidade"><Plus /></Button>
+              <Button onClick={() => setQuantity("mineiro", (cart["mineiro"] ?? 0) - 1)} size="icon-sm" variant="ghost" aria-label="Diminuir quantidade"><Minus /></Button>
+              <span className="w-7 text-center text-sm font-bold">{cart["mineiro"] ?? 0}</span>
+              <Button onClick={() => setQuantity("mineiro", (cart["mineiro"] ?? 0) + 1)} size="icon-sm" variant="ghost" aria-label="Aumentar quantidade"><Plus /></Button>
             </div>
-            <Button onClick={() => setQuantity("mineiro", Math.max(1, cart.mineiro ?? 0))} className="h-10 gap-2 px-4 shadow-none">
+            <Button onClick={() => setQuantity("mineiro", Math.max(1, cart["mineiro"] ?? 0))} className="h-10 gap-2 px-4 shadow-none">
               <ShoppingBasket className="size-4" /> Adicionar ao pedido
             </Button>
           </div>
