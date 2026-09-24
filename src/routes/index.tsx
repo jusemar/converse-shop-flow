@@ -257,12 +257,9 @@ function Index() {
                   onClick={() => setView("chat")}
                   className={cn(
                     "relative grid w-full grid-cols-[44px_minmax(0,1fr)_auto] gap-3 px-4 py-3 text-left transition-colors hover:bg-muted",
-                    item.active && "bg-secondary",
+                    item.active && "bg-muted",
                   )}
                 >
-                  {item.active && (
-                    <span className="absolute inset-y-2 left-0 w-1 rounded-r-full bg-primary" />
-                  )}
                   <span
                     className={cn(
                       "grid size-11 place-items-center rounded-full text-xs font-bold",
@@ -318,7 +315,7 @@ function Index() {
               "lg:flex",
             )}
           >
-            <header className="grid h-[72px] shrink-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-border bg-card px-4 sm:px-5">
+            <header className="grid h-[72px] shrink-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-border bg-muted px-4 sm:px-5">
               <div className="flex min-w-0 items-center gap-3">
                 <Button
                   onClick={() => setView("conversations")}
@@ -416,7 +413,7 @@ function ChatView({
             Hoje
           </div>
           <Message from="assistant" className="max-w-[86%] sm:max-w-[72%]">
-            <MessageContent className="rounded-md bg-card px-4 py-3 shadow-sm ring-1 ring-border">
+            <MessageContent className="rounded-md bg-card px-4 py-3 shadow-sm">
               <MessageResponse>
                 Olá! Que bom ter você por aqui. Posso ajudar com o cardápio ou montar seu pedido.
               </MessageResponse>
@@ -432,7 +429,7 @@ function ChatView({
             </MessageContent>
           </Message>
           <Message from="assistant" className="max-w-[90%] sm:max-w-[76%]">
-            <MessageContent className="rounded-md bg-card px-4 py-3 shadow-sm ring-1 ring-border">
+            <MessageContent className="rounded-md bg-card px-4 py-3 shadow-sm">
               <MessageResponse>
                 Perfeito! Nosso cardápio está aberto. Você pode escolher os itens sem sair desta
                 conversa.
@@ -458,7 +455,7 @@ function ChatView({
           onSubmit={({ text }) => {
             if (text.trim()) onSend(text.trim());
           }}
-          className="mx-auto max-w-3xl rounded-lg bg-card shadow-sm"
+          className="mx-auto max-w-3xl rounded-lg border-transparent bg-card shadow-sm"
         >
           <PromptInputTextarea placeholder="Digite uma mensagem..." className="min-h-12 px-4" />
           <PromptInputFooter className="px-2 pb-2">
