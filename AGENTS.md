@@ -8,3 +8,5 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- Keep the social prototype in a dedicated feature component while the index route owns shared app navigation, because messaging and social views need independent interaction state.
