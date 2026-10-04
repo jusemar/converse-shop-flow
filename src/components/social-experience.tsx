@@ -55,7 +55,7 @@ type Post = {
   time: string;
 };
 
-const authors: Record<string, Author> = {
+const authors = {
   sabor: {
     id: "sabor",
     name: "Sabor Mineiro",
@@ -97,9 +97,9 @@ const authors: Record<string, Author> = {
     followers: "4.911",
     following: "527",
   },
-};
+} satisfies Record<string, Author>;
 
-const posts: Post[] = [
+const posts = [
   {
     id: "prato",
     author: authors.sabor,
@@ -140,7 +140,7 @@ const posts: Post[] = [
     comments: 29,
     time: "há 3 h",
   },
-];
+] satisfies [Post, ...Post[]];
 
 const storyAuthors = [authors.sabor, authors.luana, authors.pizza, authors.marina];
 
